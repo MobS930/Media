@@ -1,0 +1,111 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 28
+
+    defaultConfig {
+        applicationId "fm.player.playerandroidaudio"
+        minSdkVersion 14
+        targetSdkVersion 28
+        versionCode 1
+        versionName "1.0"
+
+        // You should have the recent NDK version (NDK r19c) installed, before trying to build this project
+        externalNativeBuild {
+            cmake {
+                arguments "-DANDROID_TOOLCHAIN=clang",
+                        "-DANDROID_PLATFORM=android-16"
+
+                cFlags "-Wall", "-Wextra",
+                        "-Wno-unused-parameter", "-Wno-missing-field-initializers", "-Wno-return-type",
+                        "-Wvla",
+                        "-DHAVE_SYS_PARAM_H -DHAVE_STRING_H -DHAVE_STRDUP -DMPG123_NO_CONFIGURE -DOPT_GENERIC -DHAVE_STRERROR -DMPG123_NO_LARGENAME"
+            }
+        }
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    externalNativeBuild {
+        cmake {
+            path "CMakeLists.txt"
+        }
+    }
+
+
+    // Build separate APKs for arm and x86
+    // Only 4 ABIs supported in current stable NDK r19c - armeabi-v7a, arm64-v8a, x86, and x86_64
+    // mips, mips64, and armeabi are not supported by newer NDK versions(r17+)
+    flavorDimensions "abi"
+    productFlavors {
+
+        arm {
+            versionCode = 1
+            ndk {
+                abiFilters "armeabi-v7a", "arm64-v8a"
+            }
+            dimension = 'abi'
+        }
+
+        x86 {
+            dimension = 'abi'
+
+            // this is the flavor part of the version code.
+            // It must be higher than the arm one for devices supporting
+            // both, as x86 is preferred.
+            versionCode = 2
+            ndk {
+                abiFilters 'x86','x86_64'
+            }
+        }
+    }
+
+
+    aaptOptions {
+        noCompress 'apk'
+    }
+    packagingOptions {
+        // These are exlcuded because they appear in both jaad-0.8.4.jar and mp3spi1.9.5.jar
+        exclude 'META-INF/services/javax.sound.sampled.spi.AudioFileReader'
+        exclude 'META-INF/services/javax.sound.sampled.spi.AudioFileWriter'
+        exclude 'META-INF/services/javax.sound.sampled.spi.FormatConversionProvider'
+        exclude 'META-INF/services/javax.sound.sampled.spi.MixerProvider'
+
+    }
+
+    lintOptions {
+        abortOnError false
+        disable 'InvalidPackage'
+    }
+
+}
+
+ext {
+    supportLibVersion = '28.0.0'
+}
+
+dependencies {
+//    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation files('libs/commons-codec-1.6.jar')
+    implementation files('libs/jaad-0.8.4.jar')
+    implementation files('libs/jid3lib-0.5.4.jar')
+    implementation files('libs/jl1.0.1.jar')
+    implementation files('libs/mp3spi1.9.5.jar')
+    implementation files('libs/tritonus_share.jar')
+
+    implementation "com.android.support:appcompat-v7:${supportLibVersion}"
+    implementation "com.android.support:cardview-v7:${supportLibVersion}"
+    implementation 'com.android.support.constraint:constraint-layout:1.1.3'
+
+    annotationProcessor "com.jakewharton:butterknife:7.0.1"
+    implementation 'com.jakewharton:butterknife:7.0.1'
+    implementation 'com.google.code.gson:gson:2.7'
+    implementation 'com.squareup.okhttp:okhttp:2.6.0'
+    implementation 'com.squareup.okhttp:okhttp-urlconnection:2.7.0'
+    implementation 'com.squareup.okio:okio:1.6.0'
+    implementation 'de.greenrobot:eventbus:2.4.1'
+}

@@ -1,0 +1,30 @@
+# idea conf files
+
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Gradle
+.gradle
+build
+/app/build/
+
+out/
+bin
+gen
+.apt_generated/
+
+obj/
+
+build.xml
+/local.properties
+.classpath
+
+.project
+
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+
